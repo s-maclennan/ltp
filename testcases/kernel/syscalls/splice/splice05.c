@@ -24,6 +24,7 @@
  */
 
 #define _GNU_SOURCE
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "tst_test.h"
+#include "splice.h"
 
 #define PIPE_MAX (64*1024)
 
@@ -46,10 +48,9 @@ static struct tst_option options[] = {
 
 static void setup(void)
 {
-	int i, pipe_max_unpriv, pipe_limit;
+	int i, pipe_limit;
 
-	SAFE_FILE_SCANF("/proc/sys/fs/pipe-max-size", "%d", &pipe_max_unpriv);
-	pipe_limit = MIN(pipe_max_unpriv, num_len_data);
+	pipe_limit = get_max_limit(num_len_data);
 	num_len_data = pipe_limit;
 
 	if (tst_parse_int(str_len_data, &num_len_data, 1, pipe_limit)) {
@@ -90,7 +91,12 @@ static void pipe_socket(void)
 	for (i = num_len_data; i > 0; i = i - ret) {
 		ret = splice(sv[1], 0, pp2[1], NULL, i, 0);
 		if (ret == -1) {
-			tst_res(TFAIL | TERRNO, "splice error");
+			if (errno == EINVAL) {
+				tst_res(TCONF, "splice does not support "
+					"af_unix sockets");
+			} else {
+				tst_res(TFAIL | TERRNO, "splice error");
+			}
 			goto exit;
 		}
 		SAFE_READ(1, pp2[0], arr_out + num_len_data - i, ret);

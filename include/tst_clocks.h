@@ -14,36 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include <sys/select.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <errno.h>
 
-#include "tst_timer_test.h"
+/*
+ * clock_gettime() and clock_getres() functions
+ */
 
-int sample_fn(int clk_id, long long usec)
-{
-	fd_set readfds;
-	struct timespec tv = tst_us_to_timespec(usec);
+#ifndef TST_CLOCKS__
+#define TST_CLOCKS__
 
-	FD_ZERO(&readfds);
-	FD_SET(0, &readfds);
+int tst_clock_getres(clockid_t clk_id, struct timespec *res);
 
-	tst_timer_start(clk_id);
-	TEST(pselect(0, &readfds, NULL, NULL, &tv, NULL));
-	tst_timer_stop();
-	tst_timer_sample();
+int tst_clock_gettime(clockid_t clk_id, struct timespec *ts);
 
-	if (TEST_RETURN != 0) {
-		tst_res(TFAIL | TTERRNO,
-			"pselect() returned %li on timeout", TEST_RETURN);
-		return 1;
-	}
-
-	return 0;
-}
-
-static struct tst_test test = {
-	.tid = "pselect()",
-	.sample = sample_fn,
-};
+#endif /* TST_CLOCKS__ */

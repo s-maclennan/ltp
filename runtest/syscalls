@@ -74,6 +74,7 @@ chroot04 chroot04
 
 clock_getres01 clock_getres01
 clock_nanosleep01 clock_nanosleep01
+clock_nanosleep02 clock_nanosleep02
 clock_nanosleep2_01 clock_nanosleep2_01
 
 clone01 clone01
@@ -549,14 +550,7 @@ llseek03 llseek03
 
 lseek01 lseek01
 lseek02 lseek02
-lseek03 lseek03
-lseek04 lseek04
-lseek05 lseek05
-lseek06 lseek06
 lseek07 lseek07
-lseek08 lseek08
-lseek09 lseek09
-lseek10 lseek10
 lseek11 lseek11
 
 lstat01A symlink01 -T lstat01
